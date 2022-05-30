@@ -1,0 +1,40 @@
+{% extends "admin_base.html" %}
+{% set active_page = "staffDB" %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <div class="row">
+                <h2>Staff Information </h2>
+            </div>
+
+            <div class="row" style="padding-top: 1rem">
+                <table class="table table-hover table-striped">
+                    <tr>
+                        <th>No.</th>
+                        <th>Employee Name</th>
+                        <th>Employee ID</th>
+                        <th>Email</th>
+                        <th>Mobile Number</th>
+                        <th>Department</th>
+                        <th>Occupation</th>
+
+                    </tr>
+
+                    {%for row in staffs%}
+                    <tr>
+                        <td>{{row.id}}</td>
+                        <td>{{row.name}}</td>
+                        <td>{{row.employeeID}}</td>
+                        <td>{{row.email}}</td>
+                        <td>{{row.phone}}</td>
+                        <td>{{row.department}}</td>
+                        <td>{{row.occupation}}</td>
+                    </tr>
+                    {%endfor%}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

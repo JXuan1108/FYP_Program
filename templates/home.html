@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% set active_page = "home" %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="row">
+                <h1>New Conversion</h1>
+            </div>
+            <div class = content-section>
+                <form class="needs-validation" novalidate method="post" action="" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    <div class="row">
+                        <div class="form-group mb-3">
+                            {{ form.medical_image_file.label(class="form-control-label", id='font_size') }}
+
+                            {% if form.medical_image_file.errors %}
+                                {{ form.medical_image_file(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.medical_image_file.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.medical_image_file(class="form-control") }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            {{ form.patient_id.label(class="form-select-label", id="font_size") }}
+
+                            {% if form.patient_id.errors %}
+                                {{ form.patient_id(class="form-select form-select-lg select-picker is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.patient_id.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.patient_id(class="form-select form-select-lg select-picker") }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row" style="padding-top: 1rem">
+                        <div class="form-group">
+                            {{ form.name.label(class="form-control-label", id="font_size") }}
+
+                            {% if form.name.errors %}
+                                {{ form.name(class="form-control form-control-lg is-invalid", disabled=true) }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.name.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.name(class="form-control form-select-lg", disabled=true) }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row" style="padding-top: 1rem">
+                        <div class="form-group">
+                            {{ form.physician_id.label(class="form-select-label", id="font_size") }}
+
+                            {% if form.physician_id.errors %}
+                                {{ form.physician_id(class="form-select form-select-lg is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.physician_id.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.physician_id(class="form-select form-select-lg") }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row" style="padding-top: 1rem">
+                        <div class="form-group">
+                            {{ form.physician_name.label(class="form-control-label", id="font_size") }}
+
+                            {% if form.physician_name.errors %}
+                                {{ form.physician_name(class="form-control form-control-lg is-invalid", disabled=true) }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.physician_name.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.physician_name(class="form-control form-select-lg", disabled=true) }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row" style="padding-top: 1rem">
+                        <div class="form-group">
+                            {{ form.department.label(class="form-control-label", id="font_size") }}
+
+                            {% if form.department.errors %}
+                                {{ form.department(class="form-control form-control-lg is-invalid", disabled=true) }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.physician_name.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.department(class="form-control form-select-lg", disabled=true) }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row" style="padding-top: 1rem">
+                        <div class="form-group">
+                            {{ form.title.label(class="form-control-label", id="font_size") }}
+
+                            {% if form.title.errors %}
+                                {{ form.title(class="form-control form-control-lg is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.title.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.title(class="form-control form-control-lg") }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row" style="padding-top: 1rem">
+                        <div class="form-group">
+                            {{ form.category.label(class="form-control-label", id="font_size") }}
+
+                            {% if form.category.errors %}
+                                {{ form.category(class="form-select form-select-lg is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.category.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.category(class="form-select form-select-lg") }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row" style="padding-top: 1rem">
+                        <div class="form-group">
+                            {{ form.date.label(class="form-control-label", id="font_size") }}
+
+                            {% if form.date.errors %}
+                                {{ form.date(class="form-control form-control-lg is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.date.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.date(class="form-control form-control-lg") }}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row" style="padding-top: 1.5rem">
+                        <div class="form-group">
+                            {{ form.submit(class="btn btn-primary btn-lg btn-block") }}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+physician_name_select = document.getElementById('physician_name');
+physician_department_select = document.getElementById('department');
+physician_id_select = document.getElementById('physician_id');
+
+physician_id_select.onchange = function(){
+    physician = physician_id_select.value;
+    fetch('physician_name/' + physician).then(function(response){
+        response.json().then(function(data) {
+            optionHTML = '';
+            for (physician_name of data.physicianlist) {
+                    physician_name_select.setAttribute('value',physician_name.name)
+                    physician_department_select.setAttribute('value',physician_name.department)
+            }
+            physician_name_select.innerHTML = optionHTML;
+        });
+    });
+}
+
+patient_name_select = document.getElementById('name');
+patient_id_select = document.getElementById('patient_id');
+
+patient_id_select.onchange = function(){
+    patient = patient_id_select.value;
+    fetch('patient_name/' + patient).then(function(response){
+        response.json().then(function(data) {
+            optionHTML = '';
+            for (patient_name of data.patientlist) {
+                    patient_name_select.setAttribute('value',patient_name.name)
+
+            }
+            patient_name_select.innerHTML = optionHTML;
+        });
+    });
+}
+</script>
+{% endblock content %}

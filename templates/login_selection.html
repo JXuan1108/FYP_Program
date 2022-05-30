@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% set active_page = "login_selection" %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col" align="center">
+            <h2><b>Login</b></h2>
+            <h4>Please select your identity!</h4>
+        </div>
+    </div>
+
+    <div class="row" align="center" style="padding-top: 2rem">
+        <div class="col-md-4 mx-auto">
+            <div class="card box-shadow1">
+                <div class="card-body">
+                    <a class="stretched-link text-decoration-none" href="/admin_login">
+                        <img src="/static/images/admin.jpg" style="width: 100%">
+                        <h4 class="card-title" style="padding-top: 1rem">Admin</h4>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mx-auto">
+            <div class="card box-shadow1">
+                <div class="card-body">
+                    <a class="stretched-link text-decoration-none" href="/login">
+                        <img src="/static/images/doc.jpg" style="width: 100%">
+                        <h4 class="card-title" style="padding-top: 1rem">Doctor/Nurse</h4>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mx-auto">
+            <div class="card box-shadow1">
+                <div class="card-body">
+                    <a class="stretched-link text-decoration-none" href="/patient_login">
+                        <img src="/static/images/patient.jpg" style="width: 100%">
+                        <h4 class="card-title" style="padding-top: 1rem">Patient</h4>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

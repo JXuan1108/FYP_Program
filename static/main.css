@@ -1,0 +1,40 @@
+body {
+    font-family: quicksand;
+    background-color: #faf6f2;
+}
+
+html {
+    overflow-y: scroll;
+}
+
+.box-shadow1 {
+    box-shadow: 0 0 0 0.2px rgb(255 255 255), 0.1em 0.1em 0.3em rgb(0 0 0 / 30%);
+}
+
+p{
+   font-size: 18px;
+}
+
+li {
+    display: inline;
+    padding-top: 0.3rem;
+    margin-right: 20px;
+    font-size: 20px;
+}
+
+.navbar-btm-shadow {
+    box-shadow: 0 0.5rem 0.5rem rgb(0 0 0 / 20%);
+    background-color: #faf6f2;
+}
+
+.option{
+    color: #000000;
+}
+
+.card-title{
+    color: #000000;
+}
+
+#font_size{
+    font_size: 10rem
+}

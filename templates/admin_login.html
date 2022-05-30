@@ -1,0 +1,77 @@
+{% extends "admin_base.html" %}
+{% set active_page = "admin_login" %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card box-shadow1">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col" align="center">
+                            <img src="/static/images/userIcon.png" style="width: 150px"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col" align="center">
+                            <h3>Admin Login</h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col" align="center">
+                            <hr />
+                        </div>
+                    </div>
+
+                    <div class = content-section>
+                        <form class="needs-validation" novalidate method="post" action="">
+                            {{ form.hidden_tag() }}
+                            <div class="form-group">
+                                {{ form.adminID.label(class="form-control-label") }}
+
+                                        {% if form.adminID.errors %}
+                                            {{ form.adminID(class="form-control form-control-lg is-invalid") }}
+                                            <div class="invalid-feedback">
+                                                {% for error in form.adminID.errors %}
+                                                <span>{{ error }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            {{ form.adminID(class="form-control form-control-lg") }}
+                                        {% endif %}
+                            </div>
+                            <div class="form-group" style="padding-top: 1rem">
+                                {{ form.password.label(class="form-control-label") }}
+
+                                        {% if form.password.errors %}
+                                            {{ form.password(class="form-control form-control-lg is-invalid") }}
+                                            <div class="invalid-feedback">
+                                                {% for error in form.password.errors %}
+                                                    <span>{{ error }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            {{ form.password(class="form-control form-control-lg") }}
+                                        {% endif %}
+                            </div>
+                            <div class="form-group" style="padding-top: 0.5rem">
+                                <div class="row">
+                                    <div class="col-md-12" align="right">
+                                        <a href="" id="forgotPwd">Forgot Password</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group d-grid gap-2" style="padding-top: 0.5rem">
+                                {{ form.submit(class="btn btn-primary btn-lg btn-block") }}
+                            </div>
+                            <div class="form-group d-grid gap-2" style="padding-top: 0.5rem">
+                                <p>Register account</p>
+                                <a href="/adminSignUp">signUp</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
