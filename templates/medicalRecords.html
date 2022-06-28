@@ -54,12 +54,50 @@
                         <td>{{row.Encryption.image_title}}</td>
                         <td>{{row.Encryption.image_category}}</td>
                         <td>{{row.Encryption.physician_name}}</td>
-                        <td>{{row.Users.department}}</td>
+                        <td>{{row.Employees.department}}</td>
                         <td>{{row.Encryption.date_of_creation}}</td>
                         <td>
-                            <a href="/request/{{row.Encryption.image_id}}" class="btn btn-outline-secondary btn-xs">Request Image</a>
+                            <a href="/send/{{row.Encryption.image_id}}" class="btn btn-outline-secondary btn-xs" data-bs-toggle="modal" data-bs-target="#modalsend{{row.Encryption.image_id}}">Request Image</a>
                         </td>
                     </tr>
+
+                    <div id="modalsend{{row.Encryption.image_id}}" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Send Image</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="{{url_for('deepSteganography')}}" method="POST" enctype="multipart/form-data">
+                                        <div class="form-group">
+                                            <label>Patient ID:</label>
+                                            <input type="text" class="form-control" name="patient_id" value="{{row.Encryption.patient_id}}" disabled>
+                                        </div>
+                                        <div class="form-group" style="padding-top: 1rem">
+                                            <input type="hidden" name="image_id" value="{{row.Encryption.image_id}}">
+
+                                            <label>Patient Name:</label>
+                                            <input type="text" class="form-control" name="patient_name" value="{{row.Encryption.patient_name}}" disabled>
+                                        </div>
+                                        <div class="form-group" style="padding-top: 1rem">
+                                            <label>Title:</label>
+                                            <input type="text" class="form-control" name="image_title" value="{{row.Encryption.image_title}}" disabled>
+                                        </div>
+                                        <div class="form-group" style="padding-top: 1rem">
+                                            <label>Cover Image:</label>
+                                            <input class="form-control" type="file" name="cover_image">
+                                        </div>
+                                        <div class="form-group" style="padding-top: 1rem">
+                                            <button class="btn btn-primary" type="submit">Send</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                        <button class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     {%endfor%}
                 </table>
             </div>

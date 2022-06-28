@@ -6,7 +6,6 @@ import cv2
 from PIL import Image
 from tkinter.filedialog import *
 
-
 # def image_compressor(image):
 #     img = [cv2.imread(file) for file in glob.glob('C:/Users/User/Documents/FYP/deepStega/data/secretImage/*.tiff')]
 #
@@ -37,6 +36,8 @@ from tkinter.filedialog import *
 #         continue
 
 import cv2, os
+from PIL import Image
+import os, argparse
 
 
 def tif_to_png_converter(filePath):
@@ -48,12 +49,21 @@ def tif_to_png_converter(filePath):
         outfile = infile.split('.')[0] + '.png'
         cv2.imwrite(new_path + outfile, read)
         # Deleting the .tiff file after converting
-        if infile[-3:] == "tif":
+        if infile[-3:] == "jpeg":
             print(infile)
             os.remove(filePath + '/' + infile)
             # check if file exists or not
 
 
+# directory = r'D:\PATH'
+def jpeg_to_png_converter(directory):
+    for filename in os.listdir(directory):
+        if filename.endswith('.jpeg'):
+            image = Image.open(os.path.join(directory, filename))
+            data = os.path.splitext(filename)[0]
+            image.save(f'{directory}/{data}.png')
+
+
 if __name__ == "__main__":
     print("cleaning the files")
-    tif_to_png_converter("C:/Users/User/Documents/FYP/deepStega/data/secretImage/")
+    jpeg_to_png_converter(r"C:/Users/User/Documents/FYP_Program/dataset/PNEUMONIA/")

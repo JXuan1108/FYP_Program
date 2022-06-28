@@ -30,7 +30,6 @@ class Hide(nn.Module):
             nn.BatchNorm2d(32),
             nn.ReLU(True)
         )
-
         self.hiding_2 = nn.Sequential(
             nn.ConvTranspose2d(32, 32, kernel_size=4, stride=2, padding=1),
             nn.ReLU(),

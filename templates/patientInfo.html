@@ -54,10 +54,10 @@
                         <td>{{row.Encryption.image_title}}</td>
                         <td>{{row.Encryption.image_category}}</td>
                         <td>{{row.Encryption.physician_name}}</td>
-                        <td>{{row.Users.department}}</td>
+                        <td>{{row.Employees.department}}</td>
                         <td>{{row.Encryption.date_of_creation}}</td>
                         <td>
-                            <a href="/decrypt/{{row.Encryption.image_id}}" class="btn btn-outline-secondary btn-xs" data-bs-toggle="modal" data-bs-target="#modaldecrypt{{row.Encryption.image_id}}">Decrypt</a>
+                            <a href="/send/{{row.Encryption.image_id}}" class="btn btn-outline-secondary btn-xs" data-bs-toggle="modal" data-bs-target="#modalsend{{row.Encryption.image_id}}">Get Image</a>
                         </td>
                     </tr>
 
@@ -68,7 +68,7 @@
                                     <h4 class="modal-title">Decrypt Image</h4>
                                 </div>
                                 <div class="modal-body">
-                                    <form action="{{url_for('decrypt')}}" method="POST">
+                                    <form action="{{url_for('deepSteganography')}}" method="POST">
                                         <div class="form-group">
                                             <label>Patient ID:</label>
                                             <input type="text" class="form-control" name="patient_id" value="{{row.Encryption.patient_id}}" disabled>
@@ -88,8 +88,8 @@
                                             <input type="text" class="form-control" name="department" value="{{row.Encryption.department}}" disabled>
                                         </div>
                                         <div class="form-group" style="padding-top: 1rem">
-                                            <label>Image Data:</label>
-                                            <input type="text" class="form-control" name="encrypted_image" value="{{row.Encryption.encrypted_medical_image}}" disabled>
+                                            <label>Cover Image:</label>
+                                            <input class="form-control" type="file" name="cover_image">
                                         </div>
                                         <div class="form-group" style="padding-top: 1rem">
                                             <button class="btn btn-primary" type="submit">Decrypt</button>

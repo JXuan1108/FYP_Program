@@ -133,33 +133,33 @@
                             <div class="row" style="padding-top: 1rem">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        {{ form.password.label(class="form-control-label") }}
+                                        {{ form.ic.label(class="form-control-label") }}
 
-                                        {% if form.password.errors %}
-                                            {{ form.password(class="form-control form-control-lg is-invalid") }}
+                                        {% if form.ic.errors %}
+                                            {{ form.ic(class="form-control form-control-lg is-invalid") }}
                                             <div class="invalid-feedback">
-                                                {% for error in form.password.errors %}
+                                                {% for error in form.ic.errors %}
                                                     <span>{{ error }}</span>
                                                 {% endfor %}
                                             </div>
                                         {% else %}
-                                            {{ form.password(class="form-control form-control-lg") }}
+                                            {{ form.ic(class="form-control form-control-lg") }}
                                         {% endif %}
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        {{ form.confirmed_password.label(class="form-control-label") }}
+                                        {{ form.gender.label(class="form-control-label") }}
 
-                                        {% if form.confirmed_password.errors %}
-                                            {{ form.confirmed_password(class="form-control form-control-lg is-invalid") }}
+                                        {% if form.gender.errors %}
+                                            {{ form.gender(class="form-select form-select-lg is-invalid") }}
                                             <div class="invalid-feedback">
-                                                {% for error in form.confirmed_password.errors %}
+                                                {% for error in form.gender.errors %}
                                                 <span>{{ error }}</span>
                                                 {% endfor %}
                                             </div>
                                         {% else %}
-                                            {{ form.confirmed_password(class="form-control form-control-lg") }}
+                                            {{ form.gender(class="form-select form-select-lg") }}
                                         {% endif %}
                                     </div>
                                 </div>

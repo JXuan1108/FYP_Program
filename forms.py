@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField, SubmitField, DateField, SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 
 
 class SignUpForm(FlaskForm):
@@ -14,14 +15,14 @@ class SignUpForm(FlaskForm):
                              validators=[DataRequired(),
                                          Length(min=10, max=50, message='Name must be at least 10 characters')])
     occupation = SelectField('Occupation', choices=[('Doctor', 'Doctor'), ('Nurse', 'Nurse')])
-    password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
-    confirmed_password = PasswordField('Confirmed Password',
-                                       validators=[DataRequired(), EqualTo('password', message='Passwords must match')])
+    ic = StringField('ID Number/ Passport Number', validators=[DataRequired(), Length(min=8)])
+    gender = SelectField('Gender', choices=[('Male', 'Male'), ('Female', 'Female')])
     submit = SubmitField('Add New User')
 
 
 class LoginForm(FlaskForm):
-    employeeID = StringField('Employee ID', validators=[DataRequired(), Length(min=10, max=10)])
+    employeeID = StringField('Employee ID', validators=[DataRequired(),
+                                                        Length(min=10, max=10)])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
 
@@ -68,3 +69,16 @@ class UpdatePatientPasswordForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     confirmedPassword = PasswordField('Confirmed Password', validators=[DataRequired()])
     submit = SubmitField('Login')
+
+
+class UpdateUserPasswordForm(FlaskForm):
+    employeeID = StringField('Employee ID', validators=[DataRequired(), Length(min=10, max=10)])
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirmedPassword = PasswordField('Confirmed Password', validators=[DataRequired()])
+    submit = SubmitField('Login')
+
+
+class RevealImageForm(FlaskForm):
+    reveal_image_file = FileField('Medical Image to Reveal', validators=[FileRequired(), FileAllowed(['png', 'jpg', 'jpeg'],
+                                                                                            message='We only accept JPG, JPEG or PNG file')])
+    submit = SubmitField('Reveal')
