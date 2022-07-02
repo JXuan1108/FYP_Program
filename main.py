@@ -63,7 +63,9 @@ def login_required(role="ANY"):
             if (current_user.urole != role) and (role != "ANY"):
                 return login_manager.unauthorized()
             return fn(*args, **kwargs)
+
         return decorated_view
+
     return wrapper
 
 
@@ -119,7 +121,8 @@ class Employees(mydb.Model, UserMixin):
 
     encryption_details = mydb.relationship('Encryption', back_populates='physician_details')
 
-    def __init__(self, name, employeeID, email, phone, department, occupation, ic, gender, salt, password, changePwd, urole):
+    def __init__(self, name, employeeID, email, phone, department, occupation, ic, gender, salt, password, changePwd,
+                 urole):
         self.name = name
         self.employeeID = employeeID
         self.email = email
@@ -346,9 +349,6 @@ def admin_signUp():
 
 @app.route("/login", methods=['GET', 'POST'], endpoint='login')
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
-
     form = LoginForm()
     if form.validate_on_submit():
         # check whether the user is existed
@@ -401,8 +401,10 @@ def sign_up():
 
             # add user details into db
             user = Employees(name=form.name.data, employeeID=form.employeeID.data, email=form.email.data,
-                             phone=form.mobileNumber.data, department=form.department.data, occupation=form.occupation.data,
-                             ic=form.ic.data, gender=form.gender.data, salt=hex_salt, password=hex_hash, changePwd=False, urole="Employee")
+                             phone=form.mobileNumber.data, department=form.department.data,
+                             occupation=form.occupation.data,
+                             ic=form.ic.data, gender=form.gender.data, salt=hex_salt, password=hex_hash,
+                             changePwd=False, urole="Employee")
             mydb.session.add(user)
             mydb.session.commit()
 
@@ -471,9 +473,9 @@ def addPatient():
 
     if form.validate_on_submit():
         # check whether the patient ID had been set up
-        patient = Patients.query.filter_by(patientID=form.patientID.data).first()
+        patient_info = Patients.query.filter_by(patientID=form.patientID.data).first()
         # if the employee ID is not being used
-        if patient is None:
+        if patient_info is None:
             # generate a random salt for password
             salt = os.urandom(32)
             # get user input for password
@@ -486,11 +488,11 @@ def addPatient():
             hex_salt = salt.hex()
 
             # add patient details into db
-            patient = Patients(name=form.name.data, patientID=form.patientID.data, email=form.email.data,
-                               phone=form.mobileNumber.data, ic=form.ic.data,
-                               born_date=form.born_date.data, gender=form.gender.data, salt=hex_salt, password=hex_hash,
-                               changePwd=False, urole="Patient")
-            mydb.session.add(patient)
+            patient_info = Patients(name=form.name.data, patientID=form.patientID.data, email=form.email.data,
+                                    phone=form.mobileNumber.data, ic=form.ic.data,
+                                    born_date=form.born_date.data, gender=form.gender.data, salt=hex_salt,
+                                    password=hex_hash, changePwd=False, urole="Patient")
+            mydb.session.add(patient_info)
             mydb.session.commit()
 
             flash(f'Add {form.patientID.data} successfully', 'success')
@@ -513,8 +515,6 @@ def addPatient():
 
 @app.route("/patient_login", methods=['GET', 'POST'], endpoint='patient_login')
 def patient_login():
-    # if current_user.is_authenticated:
-    #     return redirect(url_for('home'))
     form = PatientLoginForm()
     if form.validate_on_submit():
         # check whether the user is existed
@@ -524,7 +524,7 @@ def patient_login():
         if patient_identity:
             # get the password and hash the password with salt
             patient_pwd = form.password.data.encode()
-            get_patient_hash = hashlib.pbkdf2_hmac('sha256', patient_pwd, bytes.fromhex(patient_identity.salt), 10000)
+            get_patient_hash = hashlib.pbkdf2_hmac('sha256', patient_pwd, bytes.fromhex(patient_identity.salt), 100000)
             hex_hash = get_patient_hash.hex()
 
             # compare the hashed password with the particular user password that stored in db
@@ -650,12 +650,10 @@ def home():
             if photo.filename != '':
                 # get user uploaded image data and encrypt it
                 image_data = request.files['medical_image_file'].read()
-                print(image_data)
                 image = base64.b64encode(image_data)
-                print(image)
 
                 key = secrets.token_bytes(32)
-                print(key)
+                print(key.hex())
                 cipher = AES.new(key, AES.MODE_GCM)
                 nonce = cipher.nonce
 
@@ -668,19 +666,21 @@ def home():
                 random_generator = Random.new().read
                 keyPair = RSA.generate(2048, random_generator)
                 privateKey, publicKey = keyPair, keyPair.public_key()
+                print("Public: ", publicKey)
 
                 rsa_cipher = PKCS1_OAEP.new(publicKey)
                 encryptedKey = rsa_cipher.encrypt(key)
+                print("Encrypted: ", encryptedKey.hex())
 
                 num_bytes = len(encrypted_image)
                 num_pixels = int((num_bytes + 2) / 3)  # 3 bytes per pixel
                 W = H = int(math.ceil(num_pixels ** 0.5))
 
-                imagedata = encrypted_image + b'\0' * (W*H*3 - len(encrypted_image))
+                imagedata = encrypted_image + b'\0' * (W * H * 3 - len(encrypted_image))
                 home = os.path.expanduser("~")
                 save_path = os.path.join(home, "Downloads")
                 image = Image.frombytes('RGB', (W, H), imagedata)  # create image
-                image.save(save_path+"/encryptedImage.png")
+                image.save(save_path + "/encryptedImage.png")
 
                 # add user details into db
                 image = Encryption(encrypted_medical_image=encrypted_image, patient_name=form.name.data,
@@ -696,15 +696,22 @@ def home():
                 print(image.image_id)
 
                 folder_name = image.department
+                # folder_name_2 = 'CheckPublic'
                 print(folder_name)
                 folder = os.path.join("C:/Users/User/Documents/FYP_Program", folder_name)
+                # folder_2 = os.path.join("C:/Users/User/Documents/FYP_Program", folder_name_2)
                 print(folder)
                 if not os.path.exists(folder):
                     os.makedirs(folder)
+                # if not os.path.exists(folder_2):
+                #     os.makedirs(folder_2)
                 new_file = f'{image.image_id}.pem'
 
                 f = open(os.path.join(folder, new_file), 'wb')
                 f.write(privateKey.exportKey('PEM'))
+
+                # f = open(os.path.join(folder_2, new_file), 'wb')
+                # f.write(publicKey.exportKey('PEM'))
                 f.close()
 
                 form.medical_image_file.data = ""
@@ -789,7 +796,7 @@ def update():
         employee_data.phone = request.form['phone']
         employee_data.department = request.form['department']
         mydb.session.commit()
-        flash('Employee Updated Successfully', 'info')
+        flash('Employee Information Updated Successfully', 'info')
 
         return redirect(url_for('staffDB'))
 
@@ -803,6 +810,19 @@ def delete(id):
     flash('Employee Deleted Successfully', 'info')
 
     return redirect(url_for('staffDB'))
+
+
+@app.route("/updatePatient", methods=['GET', 'POST'], endpoint='updatePatient')
+@login_required(role="Patient")
+def updatePatient():
+    if request.method == 'POST':
+        patient_data = Patients.query.get(request.form.get('getId'))
+        patient_data.email = request.form['email']
+        patient_data.phone = request.form['phone']
+        mydb.session.commit()
+        flash('Personal Information Updated Successfully', 'info')
+
+        return redirect(url_for('medicalRecords'))
 
 
 @app.route('/patientInfo/<patient_id>', methods=['GET', 'POST'], endpoint='patientInfo')
@@ -831,13 +851,16 @@ def deepSteganography():
         # decrypt process
         f = open(os.path.join(folder, filename), 'rb')
         privateKey = RSA.importKey(f.read())
+        print(privateKey)
         rsa_decrypt_cipher = PKCS1_OAEP.new(privateKey)
         decrypted_key = rsa_decrypt_cipher.decrypt(key_data.aes_encrypted_key)
+        print(decrypted_key)
 
         cipher = AES.new(decrypted_key, AES.MODE_GCM, nonce=key_data.nonce)
+        start_time = time.time()
         decrypt_msg = cipher.decrypt_and_verify(key_data.encrypted_medical_image, key_data.tag)
+        print("--- %s seconds(aes) ---" % (time.time() - start_time))
         decode_decrypt_msg = codecs.decode(decrypt_msg, 'utf-8')
-        print(decode_decrypt_msg)
         b64_decode_img = base64.b64decode(decode_decrypt_msg)
         decrypted_img = Image.open(io.BytesIO(b64_decode_img))
 
@@ -856,7 +879,9 @@ def deepSteganography():
                              cv2.IMREAD_UNCHANGED)
         coverImage = cv2.resize(cover, (256, 256))
 
+        start_time_2 = time.time()
         hideImageFunc(img2, coverImage)
+        print("--- %s seconds(deep) ---" % (time.time() - start_time_2))
         # decrypt_cipher = AES.new(decrypted_key, AES.MODE_GCM, key_data.iv)
         # # decrypt_msg = unpad(decrypt_cipher.decrypt(key_data.encrypted_medical_image), 16)
         # decrypt_msg = decrypt_cipher.decrypt(key_data.encrypted_medical_image)

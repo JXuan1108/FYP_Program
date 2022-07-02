@@ -5,7 +5,7 @@
     <div class="row">
         <div class="col-md-10 mx-auto">
             <div class="row">
-                <h2>Patient Information</h2>
+                <h2>{{current_user.name}}'s Personal Information</h2>
             </div>
 
             <div class="row" style="padding-top: 1rem">
@@ -18,6 +18,7 @@
                         <th>IC Number/ Passport Number</th>
                         <th>Born Date</th>
                         <th>Gender</th>
+                        <th>Action</th>
                     </tr>
 
                     {%for row in patient_records%}
@@ -29,7 +30,59 @@
                         <td>{{row.ic}}</td>
                         <td>{{row.born_date}}</td>
                         <td>{{row.gender}}</td>
+                        <td>
+                            <a href="/updatePatient/{{row.patientID}}" class="btn btn-outline-secondary btn-xs" data-bs-toggle="modal" data-bs-target="#modalupdate{{row.patientID}}">Update</a>
+                        </td>
                     </tr>
+                    <div id="modalupdate{{row.patientID}}" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Update Personal Information</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="{{url_for('updatePatient')}}" method="POST">
+                                        <div class="form-group">
+                                            <input type="hidden" name="getId" value="{{row.id}}">
+
+                                            <label>Patient ID:</label>
+                                            <input type="text" class="form-control" name="patient_id" value="{{row.patientID}}" disabled>
+                                        </div>
+                                        <div class="form-group" style="padding-top: 1rem">
+                                            <label>Patient Name:</label>
+                                            <input type="text" class="form-control" name="patient_name" value="{{row.name}}" disabled>
+                                        </div>
+                                        <div class="form-group" style="padding-top: 1rem">
+                                            <label>Email:</label>
+                                            <input type="text" class="form-control" name="email" value="{{row.email}}">
+                                        </div>
+                                        <div class="form-group" style="padding-top: 1rem">
+                                            <label>Phone:</label>
+                                            <input type="text" class="form-control" name="phone" value="{{row.phone}}">
+                                        </div>
+                                        <div class="form-group" style="padding-top: 1rem">
+                                            <label>Identification Card number:</label>
+                                            <input type="text" class="form-control" name="ic" value="{{row.ic}}" disabled>
+                                        </div>
+                                        <div class="form-group" style="padding-top: 1rem">
+                                            <label>Born Data:</label>
+                                            <input type="text" class="form-control" name="born_date" value="{{row.born_date}}" disabled>
+                                        </div>
+                                        <div class="form-group" style="padding-top: 1rem">
+                                            <label>Gender:</label>
+                                            <input type="text" class="form-control" name="gender" value="{{row.gender}}" disabled>
+                                        </div>
+                                        <div class="form-group" style="padding-top: 1rem">
+                                            <button class="btn btn-primary" type="submit">Update</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                        <button class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     {%endfor%}
                 </table>
             </div>
@@ -65,7 +118,7 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h4 class="modal-title">Send Image</h4>
+                                    <h4 class="modal-title">Get Image</h4>
                                 </div>
                                 <div class="modal-body">
                                     <form action="{{url_for('deepSteganography')}}" method="POST" enctype="multipart/form-data">

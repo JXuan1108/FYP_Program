@@ -68,14 +68,14 @@ class UpdatePatientPasswordForm(FlaskForm):
     patientID = StringField('Patient ID', validators=[DataRequired(), Length(min=10, max=10)])
     password = PasswordField('Password', validators=[DataRequired()])
     confirmedPassword = PasswordField('Confirmed Password', validators=[DataRequired()])
-    submit = SubmitField('Login')
+    submit = SubmitField('Update')
 
 
 class UpdateUserPasswordForm(FlaskForm):
     employeeID = StringField('Employee ID', validators=[DataRequired(), Length(min=10, max=10)])
     password = PasswordField('Password', validators=[DataRequired()])
     confirmedPassword = PasswordField('Confirmed Password', validators=[DataRequired()])
-    submit = SubmitField('Login')
+    submit = SubmitField('Update')
 
 
 class RevealImageForm(FlaskForm):

@@ -1,19 +1,32 @@
-import torch
+import os
 import warnings
+from math import log10, sqrt
+
+import cv2
+import numpy as np
+import pytorch_ssim
+import torch
+import torch.nn as nn
+import torch.nn.init as init
+import torch.optim as optim
+import torchvision.transforms
+from PIL import Image
+from torch.autograd import Variable
+from torch.optim.lr_scheduler import MultiStepLR
+from torch.utils.data import DataLoader
+from torchvision import transforms
+from torchvision.utils import save_image
+from skimage import data, img_as_float
+from skimage.metrics import structural_similarity as SSIM
+from torchmetrics import StructuralSimilarityIndexMeasure
+import tensorflow as tf
+# import torchgeometry as tgm
+# from ignite.metrics import SSIM as SSIM
+# from ignite.engine import *
+from SSIM_PIL import compare_ssim
+
 from deepStegaModel import Hide, Reveal
 from deepStegaUtils import DatasetFromFolder
-import torch.nn.init as init
-import torch.nn as nn
-from torch.autograd import Variable
-from torch.utils.data import DataLoader
-from torchvision.utils import save_image
-import torch.optim as optim
-from torch.optim.lr_scheduler import MultiStepLR
-
-import numpy as np
-import os
-from PIL import Image
-from torchvision import transforms
 
 
 def init_weights(m):
@@ -32,13 +45,21 @@ def saveModel(model, save_path):
     torch.save(model.state_dict(), path)
 
 
+def PSNR(mse):
+    if (mse == 0):
+        return 100
+    max_pixel = 255.0
+    psnr = 20 * log10(max_pixel / sqrt(mse))
+    return psnr
+
+
 def train_model():
     result_dir = 'result'
     ckpt_dir = 'ckpt'
     os.makedirs(result_dir, exist_ok=True)
     os.makedirs(ckpt_dir, exist_ok=True)
 
-    dataset = DatasetFromFolder(r'C:/Users/User/Documents/FYP_Program/trainedData')
+    dataset = DatasetFromFolder(r'C:/Users/User/Documents/FYP_Program/data')
     dataloader = DataLoader(dataset, 8, shuffle=True, num_workers=2)
 
     hide_net = Hide()
@@ -59,6 +80,9 @@ def train_model():
     schedulee_h = MultiStepLR(optim_h, milestones=[100, 1000])
     schedulee_r = MultiStepLR(optim_r, milestones=[100, 1000])
 
+    ssim_h_list = []
+    ssim_r_list = []
+
     for epoch in range(2000):
         schedulee_h.step()
         schedulee_r.step()
@@ -73,9 +97,34 @@ def train_model():
             optim_r.zero_grad()
 
             output = hide_net(secret, cover)
-            loss_h = criterion(output, cover)
             reveal_secret = reveal_net(output)
+
+            # ssim = StructuralSimilarityIndexMeasure()
+            # total = 0
+            # total_1 = 0
+
+            # cover_np = cover.cpu().data[:4]
+            # output_np = output.cpu().data[:4]
+            # secret_np = secret.cpu().data[:4]
+            # reveal_np = reveal_secret.cpu().data[:4]
+
+            loss_h = criterion(output, cover)
+            psnr_h = PSNR(loss_h)
+
+            # ssim_h = ssim(output_np, cover_np)
+            # ssim_h_list.append(ssim_h)
+            # for ele in range(0, len(ssim_h_list)):
+            #     total = total + ssim_h_list[ele]
+            # ssim_h_average = total / len(ssim_h_list)
+
             loss_r = criterion(reveal_secret, secret)
+            psnr_r = PSNR(loss_r)
+
+            # ssim_r = ssim(reveal_np, secret_np)
+            # ssim_r_list.append(ssim_r)
+            # for ele in range(0, len(ssim_r_list)):
+            #     total_1 = total_1 + ssim_r_list[ele]
+            # ssim_r_average = total_1 / len(ssim_r_list)
 
             epoch_loss_h += loss_h.item()
             epoch_loss_r += loss_r.item()
@@ -87,7 +136,11 @@ def train_model():
 
         print('epoch', epoch)
         print('hide loss: %.3f' % epoch_loss_h)
+        print('hide PSNR: %.3f' % psnr_h)
+        # print('hide SSIM: %.3f' % ssim_h_average)
         print('reveal loss: %.3f' % epoch_loss_r)
+        print('reveal PSNR: %.3f' % psnr_r)
+        # print('reveal SSIM: %.3f' % ssim_r_average)
         print('=======' * 5 + '>>>')
 
         if epoch % 50 == 0 or epoch == 2000:
@@ -103,120 +156,133 @@ def train_model():
 
         else:
             torch.save(hide_net.state_dict(), r'C:/Users/User/Documents/FYP_Program/trainedModel/HideNet/HideNet.pth')
-            torch.save(reveal_net.state_dict(), r'C:/Users/User/Documents/FYP_Program/trainedModel/RevealNet/RevealNet.pth')
+            torch.save(reveal_net.state_dict(),
+                       r'C:/Users/User/Documents/FYP_Program/trainedModel/RevealNet/RevealNet.pth')
 
 
-if __name__ == '__main__':
-    train_model()
+# Function to test the model
+def hideImageFunc(secret, cover):
+    result_dir = 'output'
+    output_dir = 'sendImage'
+    os.makedirs(result_dir, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
 
-# # Function to test the model
-# def hideImageFunc(secret, cover):
-#     result_dir = 'output'
-#     output_dir = 'sendImage'
-#     os.makedirs(result_dir, exist_ok=True)
-#     os.makedirs(output_dir, exist_ok=True)
-#
-#     # Load the model that we saved at the end of the training loop
-#     hide_model = Hide()
-#     hide_model.apply(init_weights)
-#     hide_path = r'C:/Users/User/Documents/FYP_Program/trainedModel/HideNet/HideNet.pth'
-#     hide_model.load_state_dict(torch.load(hide_path))
-#
-#     reveal_model = Reveal()
-#     reveal_model.apply(init_weights)
-#     reveal_path = r'C:/Users/User/Documents/FYP_Program/trainedModel/RevealNet/RevealNet.pth'
-#     reveal_model.load_state_dict(torch.load(reveal_path))
-#
-#     hide_model.eval()
-#     reveal_model.eval()
-#
-#     criterion = nn.MSELoss()
-#     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-#
-#     hide_model.to(device)
-#     reveal_model.to(device)
-#     criterion.to(device)
-#
-#     convert_tensor = transforms.ToTensor()
-#
-#     secret_convert = np.flip(secret, axis=-1)
-#     PIL_secret_image = Image.fromarray(secret_convert)
-#     PIL_secret_image = PIL_secret_image.resize((256, 256))
-#     secretImage = convert_tensor(PIL_secret_image)
-#
-#     cover_convert = np.flip(cover, axis=-1)
-#     PIL_cover_image = Image.fromarray(cover_convert)
-#     coverImage = convert_tensor(PIL_cover_image)
-#
-#     with torch.no_grad():
-#         epoch_loss_h = 0
-#         epoch_loss_r = 0
-#
-#         secretImage = Variable(secretImage).to(device)
-#         coverImage = Variable(coverImage).to(device)
-#
-#         hide_model.zero_grad()
-#         reveal_model.zero_grad()
-#
-#         output = hide_model(secretImage[None, ...], coverImage[None, ...])
-#         loss_h = criterion(output, coverImage)
-#         reveal_secret = reveal_model(output)
-#         loss_r = criterion(reveal_secret, secretImage)
-#
-#         epoch_loss_h += loss_h.item()
-#         epoch_loss_r += loss_r.item()
-#
-#         print('hide loss: %.3f' % epoch_loss_h)
-#         print('reveal loss: %.3f' % epoch_loss_r)
-#         print('=======' * 5 + '>>>')
-#
-#         home = os.path.expanduser("~")
-#         save_path = os.path.join(home, "Downloads")
-#         save_image(torch.cat([output.cpu().data[:4]], dim=0), fp=save_path+"/embedImage.png")
-#
-#         # save_image(torch.cat(
-#         #         [secretImage.cpu().data[:4], reveal_secret.cpu().data[:4], coverImage.cpu().data[:4], output.cpu().data[:4]],
-#         #         dim=0), fp='./{}/result_pic.png'.format(result_dir), nrow=4)
+    # Load the model that we saved at the end of the training loop
+    hide_model = Hide()
+    hide_model.apply(init_weights)
+    hide_path = r'C:/Users/User/Documents/FYP_Program/trainedModel/HideNet.pth'
+    hide_model.load_state_dict(torch.load(hide_path))
+
+    reveal_model = Reveal()
+    reveal_model.apply(init_weights)
+    reveal_path = r'C:/Users/User/Documents/FYP_Program/trainedModel/RevealNet.pth'
+    reveal_model.load_state_dict(torch.load(reveal_path))
+
+    hide_model.eval()
+    reveal_model.eval()
+
+    criterion = nn.MSELoss()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    hide_model.to(device)
+    reveal_model.to(device)
+    criterion.to(device)
+
+    convert_tensor = transforms.ToTensor()
+
+    secret_convert = np.flip(secret, axis=-1)
+    PIL_secret_image = Image.fromarray(secret_convert)
+    PIL_secret_image = PIL_secret_image.resize((256, 256))
+    secretImage = convert_tensor(PIL_secret_image)
+
+    cover_convert = np.flip(cover, axis=-1)
+    PIL_cover_image = Image.fromarray(cover_convert)
+    coverImage = convert_tensor(PIL_cover_image)
+
+    ssim_h_list = []
+    ssim_r_list = []
+
+    with torch.no_grad():
+        epoch_loss_h = 0
+        epoch_loss_r = 0
+
+        secretImage = Variable(secretImage).to(device)
+        coverImage = Variable(coverImage).to(device)
+
+        hide_model.zero_grad()
+
+        output = hide_model(secretImage[None, ...], coverImage[None, ...])
+        reveal_secret = reveal_model(output)
+
+        ssim = StructuralSimilarityIndexMeasure()
+        total = 0
+        total_1 = 0
+
+        cover_np = cover.cpu().data[:4]
+        output_np = output.cpu().data[:4]
+        secret_np = secret.cpu().data[:4]
+        reveal_np = reveal_secret.cpu().data[:4]
+
+        loss_h = criterion(output, coverImage)
+        psnr_h = PSNR(loss_h)
+        ssim_h = ssim(output_np, cover_np)
+        ssim_h_list.append(ssim_h)
+        for ele in range(0, len(ssim_h_list)):
+            total = total + ssim_h_list[ele]
+        ssim_h_average = total / len(ssim_h_list)
+
+        loss_r = criterion(reveal_secret, secretImage)
+        psnr_r = PSNR(loss_r)
+        ssim_r = ssim(reveal_np, secret_np)
+        ssim_r_list.append(ssim_r)
+        for ele in range(0, len(ssim_r_list)):
+            total_1 = total_1 + ssim_r_list[ele]
+        ssim_r_average = total_1 / len(ssim_r_list)
+
+        epoch_loss_h += loss_h.item()
+        epoch_loss_r += loss_r.item()
+
+        print('hide loss: %.3f' % epoch_loss_h)
+        print('hide PSNR: %.3f' % psnr_h)
+        print('hide SSIM: %.3f' % ssim_h_average)
+        print('reveal loss: %.3f' % epoch_loss_r)
+        print('reveal PSNR: %.3f' % psnr_r)
+        print('reveal SSIM: %.3f' % ssim_r_average)
+
+        home = os.path.expanduser("~")
+        save_path = os.path.join(home, "Downloads")
+        save_image(torch.cat([output.cpu().data[:4]], dim=0), fp=save_path + "/embedImage.png")
 
 
-# def revealImageFunc(image):
-#     reveal_dir = 'reveal'
-#     os.makedirs(reveal_dir, exist_ok=True)
-#
-#     reveal_model = Reveal()
-#     reveal_model.apply(init_weights)
-#     reveal_path = r'C:/Users/User/Documents/FYP_Program/trainedModel/RevealNet/RevealNet.pth'
-#     reveal_model.load_state_dict(torch.load(reveal_path))
-#
-#     reveal_model.eval()
-#
-#     criterion = nn.MSELoss()
-#     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-#     reveal_model.to(device)
-#     criterion.to(device)
-#
-#     # img = cv2.imread(image)
-#     img_convert = np.flip(image, axis=-1)
-#     PIL_image = Image.fromarray(img_convert)
-#
-#     convert_tensor = transforms.ToTensor()
-#     testImage = convert_tensor(PIL_image)
-#     print(testImage)
-#
-#     with torch.no_grad():
-#         reveal_model.zero_grad()
-#         testImage = Variable(testImage).to(device)
-#         reveal_secret = reveal_model(testImage[None, ...])
-#
-#         #         save_path = asksaveasfilename()
-#         # t = threading.Thread(target=save_path)
-#         # t.setDaemon(True)
-#         # t.start()
-#         # save_image(torch.cat([reveal_secret.cpu().data[:4]], dim=0), fp=save_path + ".png")
-#
-#         home = os.path.expanduser("~")
-#         save_path = os.path.join(home, "Downloads")
-#         save_image(torch.cat([reveal_secret.cpu().data[:4]], dim=0), fp=save_path + "/revealedImage.png")
-#
-#         # save_path = asksaveasfilename()
-#         # save_image(torch.cat([reveal_secret.cpu().data[:4]], dim=0), fp=save_path+".png")
+def revealImageFunc(image):
+    reveal_dir = 'reveal'
+    os.makedirs(reveal_dir, exist_ok=True)
+
+    reveal_model = Reveal()
+    reveal_model.apply(init_weights)
+    reveal_path = r'C:/Users/User/Documents/FYP_Program/trainedModel/RevealNet.pth'
+    reveal_model.load_state_dict(torch.load(reveal_path))
+
+    reveal_model.eval()
+
+    criterion = nn.MSELoss()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    reveal_model.to(device)
+    criterion.to(device)
+
+    # img = cv2.imread(image)
+    img_convert = np.flip(image, axis=-1)
+    PIL_image = Image.fromarray(img_convert)
+
+    convert_tensor = transforms.ToTensor()
+    testImage = convert_tensor(PIL_image)
+    print(testImage)
+
+    with torch.no_grad():
+        reveal_model.zero_grad()
+        testImage = Variable(testImage).to(device)
+        reveal_secret = reveal_model(testImage[None, ...])
+
+        home = os.path.expanduser("~")
+        save_path = os.path.join(home, "Downloads")
+        save_image(torch.cat([reveal_secret.cpu().data[:4]], dim=0), fp=save_path + "/revealedImage.png")
