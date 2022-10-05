@@ -9,8 +9,6 @@ import numpy
 import numpy as np
 import time
 import os
-import warnings
-import torch.nn.init as init
 
 from flask import Flask, render_template, url_for, flash, redirect, request, jsonify
 from flask_bcrypt import Bcrypt
@@ -31,7 +29,6 @@ from tkinter.filedialog import *
 from Crypto import Random
 from PIL import Image
 from deepStega import hideImageFunc, revealImageFunc
-from torchvision import transforms
 
 app = Flask(__name__, static_url_path='/static')
 app.config['SECRET_KEY'] = '661476085b7a9f1ba6cb8e39f3368391'
@@ -524,7 +521,7 @@ def patient_login():
         if patient_identity:
             # get the password and hash the password with salt
             patient_pwd = form.password.data.encode()
-            get_patient_hash = hashlib.pbkdf2_hmac('sha256', patient_pwd, bytes.fromhex(patient_identity.salt), 100000)
+            get_patient_hash = hashlib.pbkdf2_hmac('sha256', patient_pwd, bytes.fromhex(patient_identity.salt), 10000)
             hex_hash = get_patient_hash.hex()
 
             # compare the hashed password with the particular user password that stored in db
@@ -887,8 +884,10 @@ def deepSteganography():
         # decrypt_msg = decrypt_cipher.decrypt(key_data.encrypted_medical_image)
 
     if current_user.urole == "Employee":
+        flash(f'The medical image is downloaded in Download folder, please reveal your image using Reveal page!', 'info')
         return redirect(url_for('review'))
     elif current_user.urole == "Patient":
+        flash(f'The medical image is downloaded in Download folder, please reveal your image using Reveal page!', 'info')
         return redirect(url_for('medicalRecords'))
 
 
@@ -900,7 +899,7 @@ def revealImage():
             reveal = cv2.imdecode(numpy.fromstring(request.files['reveal_image_file'].read(), numpy.uint8),
                                   cv2.IMREAD_UNCHANGED)
             revealImageFunc(reveal)
-        print("Reveal successfully")
+            flash(f'Revealed successfully, the medical image is downloaded in Download folder!', 'info')
     return render_template('revealImage.html', title='revealImage', form=form)
 
 
